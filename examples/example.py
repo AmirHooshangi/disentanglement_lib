@@ -50,13 +50,17 @@ base_path = "example_output"
 
 # By default, we do not overwrite output directories. Set this to True, if you
 # want to overwrite (in particular, if you rerun this script several times).
-overwrite = False
+overwrite = True
 
 # 1. Train a standard VAE (already implemented in disentanglement_lib).
 # ------------------------------------------------------------------------------
 
 # We save the results in a `vae` subfolder.
-path_vae = os.path.join(base_path, "vae")
+
+#if not os.path.exists(base_path):
+#    os.makedirs(base_path)
+
+path_vae = os.path.join(base_path, "layerwise_vae")
 
 # The main training protocol of disentanglement_lib is defined in the
 # disentanglement_lib.methods.unsupervised.train module. To configure
@@ -76,37 +80,7 @@ train.train_with_gin(os.path.join(path_vae, "model"), overwrite, ["model.gin"])
 # disentanglement_lib.methods.unsupervised.vae which will train a VAE style
 # model where the loss is given by a reconstruction loss (configured via gin)
 # plus a custom regularizer (needs to be implemented.)
-@gin.configurable("BottleneckVAE")  # This will allow us to reference the model.
-class BottleneckVAE(vae.BaseVAE):
-  """BottleneckVAE.
 
-  The loss of this VAE-style model is given by:
-    loss = reconstruction loss + gamma * |KL(app. posterior | prior) - target|
-  """
-
-  def __init__(self, gamma=gin.REQUIRED, target=gin.REQUIRED):
-    self.gamma = gamma
-    self.target = target
-
-  def regularizer(self, kl_loss, z_mean, z_logvar, z_sampled):
-    # This is how we customize BaseVAE. To learn more, have a look at the
-    # different models in vae.py.
-    del z_mean, z_logvar, z_sampled
-    return self.gamma * tf.math.abs(kl_loss - self.target)
-
-
-# We use the same training protocol that we defined in model.gin but we use gin
-# bindings to train our custom VAE instead of the ordinary VAE.
-gin_bindings = [
-    "model.model = @BottleneckVAE()",
-    "BottleneckVAE.gamma = 4",
-    "BottleneckVAE.target = 10."
-]
-# Call training module to train the custom model.
-path_custom_vae = os.path.join(base_path, "BottleneckVAE")
-train.train_with_gin(
-    os.path.join(path_custom_vae, "model"), overwrite, ["model.gin"],
-    gin_bindings)
 # As before, after this command, you should have a `BottleneckVAE` subfolder
 # with a model that was trained for a few steps.
 
@@ -115,7 +89,7 @@ train.train_with_gin(
 # To compute disentanglement metrics, we require a representation function that
 # takes as input an image and that outputs a vector with the representation.
 # We extract the mean of the encoder from both models using the following code.
-for path in [path_vae, path_custom_vae]:
+for path in [path_vae]:
   representation_path = os.path.join(path, "representation")
   model_path = os.path.join(path, "model")
   postprocess_gin = ["postprocess.gin"]  # This contains the settings.
@@ -142,7 +116,7 @@ gin_bindings = [
     "discretizer.discretizer_fn = @histogram_discretizer",
     "discretizer.num_bins = 20"
 ]
-for path in [path_vae, path_custom_vae]:
+for path in [path_vae]:
   result_path = os.path.join(path, "metrics", "mig")
   representation_path = os.path.join(path, "representation")
   evaluate.evaluate_with_gin(
@@ -199,7 +173,7 @@ gin_bindings = [
     "custom_metric.num_train = 100", "evaluation.random_seed = 0",
     "dataset.name='auto'"
 ]
-for path in [path_vae, path_custom_vae]:
+for path in [path_vae]:
   result_path = os.path.join(path, "metrics", "custom_metric")
   evaluate.evaluate_with_gin(
       representation_path, result_path, overwrite, gin_bindings=gin_bindings)
