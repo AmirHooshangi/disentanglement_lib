@@ -436,3 +436,68 @@ class BetaTCVAE(BaseVAE):
   def regularizer(self, kl_loss, z_mean, z_logvar, z_sampled):
     tc = (self.beta - 1.) * total_correlation(z_sampled, z_mean, z_logvar)
     return tc + kl_loss
+
+@gin.configurable("layerwise_vae")
+class LayerWiseVAE(BaseVAE):
+  """layerwise model."""
+
+  def __init__(self, beta=gin.REQUIRED):
+    """Creates a layerwise VAE model.
+    """
+    self.beta = beta
+
+  def model_fn(self, features, labels, mode, params):
+    """TPUEstimator compatible model function."""
+
+    """TPUEstimator compatible model function."""
+    del labels
+    is_training = (mode == tf.estimator.ModeKeys.TRAIN)
+    data_shape = features.get_shape().as_list()[1:]
+
+    z_mean4, z_logvar4 = self.gaussian_encoder(features, is_training=is_training)
+    (z_mean1, z_logvar1), (z_mean2, z_logvar2), (z_mean3, z_logvar3) = architectures.get_layerwise_deep_layer()[0]
+    z_sampled = self.sample_from_latent_distribution(z_mean4, z_logvar4)
+
+    reconstructions = self.decode(z_sampled, data_shape, is_training)
+    per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
+    reconstruction_loss = tf.reduce_mean(per_sample_loss)
+    kl_loss_layer1 = compute_gaussian_kl(z_mean1, z_logvar1)
+    kl_loss_layer2 = compute_gaussian_kl(z_mean2, z_logvar2)
+    kl_loss_layer3 = compute_gaussian_kl(z_mean3, z_logvar3)
+    kl_loss_layer4 = compute_gaussian_kl(z_mean4, z_logvar4)
+
+    total_layers_losses =  kl_loss_layer4 + kl_loss_layer3 + kl_loss_layer2 + kl_loss_layer1
+
+    regularizer = total_layers_losses
+    loss = tf.add(reconstruction_loss, reconstruction_loss, name="loss")
+    elbo = tf.add(reconstruction_loss, reconstruction_loss, name="elbo")
+    if mode == tf.estimator.ModeKeys.TRAIN:
+      optimizer = optimizers.make_vae_optimizer()
+      update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+      train_op = optimizer.minimize(
+          loss=loss, global_step=tf.train.get_global_step())
+      train_op = tf.group([train_op, update_ops])
+      tf.summary.scalar("reconstruction_loss", reconstruction_loss)
+      tf.summary.scalar("elbo", -elbo)
+
+      logging_hook = tf.train.LoggingTensorHook({
+          "loss": loss,
+          "reconstruction_loss": reconstruction_loss,
+          "elbo": -elbo
+      },
+                                                every_n_iter=100)
+      return tf.contrib.tpu.TPUEstimatorSpec(
+          mode=mode,
+          loss=loss,
+          train_op=train_op,
+          training_hooks=[logging_hook])
+    elif mode == tf.estimator.ModeKeys.EVAL:
+      return tf.contrib.tpu.TPUEstimatorSpec(
+          mode=mode,
+          loss=loss,
+          eval_metrics=(make_metric_fn("reconstruction_loss", "elbo",
+                                       "regularizer", "kl_loss"),
+                        [reconstruction_loss, -elbo, regularizer, total_layers_losses]))
+    else:
+      raise NotImplementedError("Eval mode not supported.")
+
