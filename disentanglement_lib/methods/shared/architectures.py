@@ -358,3 +358,97 @@ def test_decoder(latent_tensor, output_shape, is_training=False):
   del is_training
   output = tf.layers.dense(latent_tensor, np.prod(output_shape), name="d1")
   return tf.reshape(output, shape=[-1] + output_shape)
+
+
+
+layerwise_deep_layer = [0]
+
+
+def get_layerwise_deep_layer():
+    return layerwise_deep_layer
+
+@gin.configurable("layerwise_conv_encoder", whitelist=[])
+def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
+  """Convolutional encoder used in layerwise-VAE paper for the chairs data.
+
+  Based on row 3 of Table 1 on page 13 of "beta-VAE: Learning Basic Visual
+  Concepts with a Constrained Variational Framework"
+  (https://openreview.net/forum?id=Sy2fzU9gl)
+
+  Args:
+    input_tensor: Input tensor of shape (batch_size, 64, 64, num_channels) to
+      build encoder on.
+    num_latent: Number of latent variables to output.
+    is_training: Whether or not the graph is built for training (UNUSED).
+
+  Returns:
+    means: Output tensor of shape (batch_size, num_latent) with latent variable
+      means.
+    log_var: Output tensor of shape (batch_size, num_latent) with latent
+      variable log variances.
+  """
+  del is_training
+
+  e1 = tf.layers.conv2d(
+      inputs=input_tensor,
+      filters=32,
+      kernel_size=4,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e1",
+  )
+  e2 = tf.layers.conv2d(
+      inputs=e1,
+      filters=32,
+      kernel_size=4,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e2",
+  )
+  e3 = tf.layers.conv2d(
+      inputs=e2,
+      filters=64,
+      kernel_size=2,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e3",
+  )
+  e4 = tf.layers.conv2d(
+      inputs=e3,
+      filters=64,
+      kernel_size=2,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e4",
+  )
+
+  flat_e1 = tf.layers.flatten(e1)
+  flat_e2 = tf.layers.flatten(e2)
+  flat_e3 = tf.layers.flatten(e3)
+  flat_e4 = tf.layers.flatten(e4)
+
+  e5 = tf.layers.dense(flat_e1, 256, activation=tf.nn.relu, name="e5")
+  e6 = tf.layers.dense(flat_e2, 256, activation=tf.nn.relu, name="e6")
+  e7 = tf.layers.dense(flat_e3, 256, activation=tf.nn.relu, name="e7")
+  e8 = tf.layers.dense(flat_e4, 256, activation=tf.nn.relu, name="e8")
+
+  means1 = tf.layers.dense(e5, num_latent, activation=None, name="means1")
+  log_var1 = tf.layers.dense(e5, num_latent, activation=None, name="log_var1")
+
+  means2 = tf.layers.dense(e6, num_latent, activation=None, name="means2")
+  log_var2 = tf.layers.dense(e6, num_latent, activation=None, name="log_var2")
+
+  means3 = tf.layers.dense(e7, num_latent, activation=None, name="means3")
+  log_var3 = tf.layers.dense(e7, num_latent, activation=None, name="log_var3")
+
+  means4 = tf.layers.dense(e8, num_latent, activation=None, name="means4")
+  log_var4 = tf.layers.dense(e8, num_latent, activation=None, name="log_var4")
+
+ # del layerwise_deep_layer
+  layerwise_deep_layer[0]=(((means1,log_var1),(means2, log_var2), (means3, log_var3)))
+
+  return  means4, log_var4
