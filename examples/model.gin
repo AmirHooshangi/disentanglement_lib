@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-dataset.name = "dsprites_full"
+dataset.name = "cars3d"
 model.batch_size = 64
-model.model = @vae()
+model.model = @layerwise_vae()
 model.random_seed = 0
 vae.beta = 4
 encoder.num_latent = 10
@@ -29,6 +29,6 @@ AdamOptimizer.epsilon = 1e-08
 AdamOptimizer.learning_rate = 0.0001
 AdamOptimizer.name = 'Adam'
 AdamOptimizer.use_locking = False
-encoder.encoder_fn = @conv_encoder
+encoder.encoder_fn = @layerwise_conv_encoder
 decoder.decoder_fn = @deconv_decoder
 reconstruction_loss.loss_fn = @bernoulli_loss
