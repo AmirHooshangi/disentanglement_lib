@@ -466,11 +466,10 @@ class LayerWiseVAE(BaseVAE):
     kl_loss_layer3 = compute_gaussian_kl(z_mean3, z_logvar3)
     kl_loss_layer4 = compute_gaussian_kl(z_mean4, z_logvar4)
 
-    total_layers_losses =  kl_loss_layer4 + kl_loss_layer3 + kl_loss_layer2 + kl_loss_layer1
-
+    total_layers_losses = kl_loss_layer4 + kl_loss_layer3 + kl_loss_layer2 + kl_loss_layer1
     regularizer = total_layers_losses
-    loss = tf.add(reconstruction_loss, reconstruction_loss, name="loss")
-    elbo = tf.add(reconstruction_loss, reconstruction_loss, name="elbo")
+    loss = tf.add(reconstruction_loss, regularizer, name="loss")
+    elbo = tf.add(reconstruction_loss, kl_loss_layer4, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = optimizers.make_vae_optimizer()
       update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
