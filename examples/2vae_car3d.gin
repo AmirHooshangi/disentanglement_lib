@@ -15,13 +15,13 @@
 
 dataset.name = "cars3d"
 model.batch_size = 64
-model.model = @layerwise_vae()
+model.model = @vae()
 model.random_seed = 0
-vae.beta = 4
+vae.beta = 2
 encoder.num_latent = 10
 vae_optimizer.optimizer_fn = @AdamOptimizer
 # We train for only 5 steps, in practice we train for 300000 steps.
-model.training_steps = 1
+model.training_steps = 50000
 model.random_seed=0
 AdamOptimizer.beta1 = 0.9
 AdamOptimizer.beta2 = 0.999
@@ -29,6 +29,6 @@ AdamOptimizer.epsilon = 1e-08
 AdamOptimizer.learning_rate = 0.0001
 AdamOptimizer.name = 'Adam'
 AdamOptimizer.use_locking = False
-encoder.encoder_fn = @layerwise_conv_encoder
+encoder.encoder_fn = @conv_encoder
 decoder.decoder_fn = @deconv_decoder
 reconstruction_loss.loss_fn = @bernoulli_loss
