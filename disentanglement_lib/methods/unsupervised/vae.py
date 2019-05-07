@@ -441,13 +441,13 @@ class BetaTCVAE(BaseVAE):
 class LayerWiseVAE(BaseVAE):
   """layerwise model."""
 
-  def __init__(self, beta=gin.REQUIRED, alpha=gin.REQUIRED, gamma=gin.REQUIRED, lamdA=gin.REQUIRED):
+  def __init__(self, beta=gin.REQUIRED, alpha=gin.REQUIRED, gamma=gin.REQUIRED, lambdA=gin.REQUIRED):
     """Creates a layerwise VAE model.
     """
     self.beta = beta
     self.alpha = alpha
     self.gamma = gamma
-    self.lambdA = lamdA
+    self.lambdA = lambdA
 
   def model_fn(self, features, labels, mode, params):
     """TPUEstimator compatible model function."""
