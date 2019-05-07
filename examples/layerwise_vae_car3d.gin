@@ -17,10 +17,10 @@ dataset.name = "cars3d"
 model.batch_size = 64
 model.model = @layerwise_vae()
 model.random_seed = 0
-layerwise_vae.beta = 1
-layerwise_vae.alpha = 4
-layerwise_vae.gamma = 4
-layerwise_vae.lambdA = 4
+layerwise_vae.beta = 4
+layerwise_vae.alpha = 2
+layerwise_vae.gamma = 2
+layerwise_vae.lambdA = 2
 encoder.num_latent = 10
 vae_optimizer.optimizer_fn = @AdamOptimizer
 # We train for only 5 steps, in practice we train for 300000 steps.
