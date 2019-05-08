@@ -394,7 +394,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
       filters=32,
       kernel_size=4,
       strides=2,
-      activation=None,
+      activation=tf.nn.relu,
       padding="same",
       name="e1",
   )
@@ -403,7 +403,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
       filters=32,
       kernel_size=4,
       strides=2,
-      activation=None,
+      activation=tf.nn.relu,
       padding="same",
       name="e2",
   )
@@ -412,7 +412,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
       filters=64,
       kernel_size=2,
       strides=2,
-      activation=None,
+      activation=tf.nn.relu,
       padding="same",
       name="e3",
   )
@@ -421,7 +421,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
       filters=64,
       kernel_size=2,
       strides=2,
-      activation=None,
+      activation=tf.nn.relu,
       padding="same",
       name="e4",
   )
@@ -431,10 +431,10 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
   flat_e3 = tf.layers.flatten(e3)
   flat_e4 = tf.layers.flatten(e4)
 
-  e5 = tf.layers.dense(flat_e1, 256, activation=None, name="e5")
-  e6 = tf.layers.dense(flat_e2, 256, activation=None, name="e6")
-  e7 = tf.layers.dense(flat_e3, 256, activation=None, name="e7")
-  e8 = tf.layers.dense(flat_e4, 256, activation=None, name="e8")
+  e5 = tf.layers.dense(flat_e1, 256, activation=tf.nn.relu, name="e5")
+  e6 = tf.layers.dense(flat_e2, 256, activation=tf.nn.relu, name="e6")
+  e7 = tf.layers.dense(flat_e3, 256, activation=tf.nn.relu, name="e7")
+  e8 = tf.layers.dense(flat_e4, 256, activation=tf.nn.relu, name="e8")
 
   means1 = tf.layers.dense(e5, num_latent, activation=None, name="means1")
   log_var1 = tf.layers.dense(e5, num_latent, activation=None, name="log_var1")
