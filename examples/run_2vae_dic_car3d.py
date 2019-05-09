@@ -80,7 +80,7 @@ train.train_with_gin(os.path.join(path_vae, "model"), overwrite, ["2vae_car3d.gi
 # disentanglement_lib.methods.unsupervised.vae which will train a VAE style
 # model where the loss is given by a reconstruction loss (configured via gin)
 # plus a custom regularizer (needs to be implemented.)
-
+ 
 # As before, after this command, you should have a `BottleneckVAE` subfolder
 # with a model that was trained for a few steps.
 
