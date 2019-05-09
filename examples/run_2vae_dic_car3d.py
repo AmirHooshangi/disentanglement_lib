@@ -83,7 +83,7 @@ train.train_with_gin(os.path.join(path_vae, "model"), overwrite, ["2vae_car3d.gi
 
 # As before, after this command, you should have a `BottleneckVAE` subfolder
 # with a model that was trained for a few steps.
- 
+
 # 3. Extract the mean representation for both of these models.
 # ------------------------------------------------------------------------------
 # To compute disentanglement metrics, we require a representation function that
