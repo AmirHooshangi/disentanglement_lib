@@ -12,6 +12,8 @@ examples/example_output/
 examples/scream/
 examples/small_norb/
 
+results/
+
 .idea
 bin/
 include
