@@ -113,7 +113,7 @@ gin_bindings = [
     "dataset.name='auto'",
     "evaluation.random_seed = 0",
     "modularity_explicitness.num_train=38",
-    "modularity_explicitness.num_test = 17",
+    "modularity_explicitness.num_test = 10",
     "discretizer.discretizer_fn = @histogram_discretizer",
     "discretizer.num_bins = 20"
 ]
