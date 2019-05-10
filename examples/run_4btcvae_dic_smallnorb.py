@@ -60,13 +60,13 @@ overwrite = True
 #if not os.path.exists(base_path):
 #    os.makedirs(base_path)
 
-path_vae = os.path.join(base_path, "2btcvae")
+path_vae = os.path.join(base_path, "4btcvae")
 
 # The main training protocol of disentanglement_lib is defined in the
 # disentanglement_lib.methods.unsupervised.train module. To configure
 # training we need to provide a gin config. For a standard VAE, you may have a
 # look at model.gin on how to do this.
-train.train_with_gin(os.path.join(path_vae, "model"), overwrite, ["2btcvae_smallnorb.gin"])
+train.train_with_gin(os.path.join(path_vae, "model"), overwrite, ["4btcvae_smallnorb.gin"])
 # After this command, you should have a `vae` subfolder with a model that was
 # trained for a few steps (in reality, you will want to train many more steps).
 
