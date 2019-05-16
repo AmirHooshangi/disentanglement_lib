@@ -469,7 +469,7 @@ class LayerWiseVAE(BaseVAE):
     kl_loss_layer3 = compute_gaussian_kl(z_mean3, z_logvar3)
     kl_loss_layer4 = compute_gaussian_kl(z_mean4, z_logvar4)
 
-    total_layers_losses = (self.beta * kl_loss_layer4) + (self.lambdA * kl_loss_layer3) + (self.gamma * kl_loss_layer2) + (self.alpha * kl_loss_layer1)
+    total_layers_losses = (self.lambdA * kl_loss_layer3) + (self.gamma * kl_loss_layer2) + (self.alpha * kl_loss_layer1)
     regularizer = total_layers_losses
     loss = tf.add(reconstruction_loss, regularizer, name="loss")
     elbo = tf.add(reconstruction_loss, kl_loss_layer4, name="elbo")
