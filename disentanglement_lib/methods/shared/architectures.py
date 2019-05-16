@@ -393,16 +393,35 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
   model = tf.keras.Sequential([
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True)),
+      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True
+                                                                  ,untransformed_scale_initializer=tf.random_normal_initializer(
+                                                                  mean=0, stddev=1.))),
+
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True)),
+      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True
+                                                                       ,
+                                                                       untransformed_scale_initializer=tf.random_normal_initializer(
+                                                                           mean=0, stddev=1.)
+                                                                       )),
+
+
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True)),
+      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True
+                                                                       ,
+                                                                       untransformed_scale_initializer=tf.random_normal_initializer(
+                                                                           mean=0, stddev=1.)
+                                                                       )),
+
+
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True)),
+      kernel_posterior_fn=tfp.layers.util.default_mean_field_normal_fn(is_singular=True
+                                                                       ,
+                                                                       untransformed_scale_initializer=tf.random_normal_initializer(
+                                                                           mean=0, stddev=1.)
+                                                                       )),
       tf.keras.layers.Flatten(),
       (tfp.layers.DenseReparameterization(256)),
   ])
