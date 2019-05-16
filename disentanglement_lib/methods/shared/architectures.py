@@ -395,16 +395,16 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
   model = tf.keras.Sequential([
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: 15 * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: 15 * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: 15 * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: 15 * tfd.kl_divergence(q, p)),
       tf.keras.layers.Flatten(),
       (tfp.layers.DenseReparameterization(256)),
   ])
