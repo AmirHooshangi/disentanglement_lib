@@ -457,22 +457,15 @@ class LayerWiseVAE(BaseVAE):
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
     data_shape = features.get_shape().as_list()[1:]
 
-    z_mean4, z_logvar4 = self.gaussian_encoder(features, is_training=is_training)
-    (z_mean1, z_logvar1), (z_mean2, z_logvar2), (z_mean3, z_logvar3) = architectures.get_layerwise_deep_layer()[0]
-    z_sampled = self.sample_from_latent_distribution(z_mean4, z_logvar4)
-
+    z_mean1, z_logvar1 = self.gaussian_encoder(features, is_training=is_training)
+    z_sampled = self.sample_from_latent_distribution(z_mean1, z_logvar1)
     reconstructions = self.decode(z_sampled, data_shape, is_training)
     per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
-    kl_loss_layer1 = compute_gaussian_kl(z_mean1, z_logvar1)
-    kl_loss_layer2 = compute_gaussian_kl(z_mean2, z_logvar2)
-    kl_loss_layer3 = compute_gaussian_kl(z_mean3, z_logvar3)
-    kl_loss_layer4 = compute_gaussian_kl(z_mean4, z_logvar4)
-
-    total_layers_losses = (self.lambdA * kl_loss_layer3) + (self.gamma * kl_loss_layer2) + (self.alpha * kl_loss_layer1)
-    regularizer = total_layers_losses
-    loss = tf.add(reconstruction_loss, regularizer, name="loss")
-    elbo = tf.add(reconstruction_loss, kl_loss_layer4, name="elbo")
+    kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
+    regularizer = kl_loss
+    loss = tf.add(reconstruction_loss, kl_loss, name="loss")
+    elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = optimizers.make_vae_optimizer()
       update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -499,7 +492,7 @@ class LayerWiseVAE(BaseVAE):
           loss=loss,
           eval_metrics=(make_metric_fn("reconstruction_loss", "elbo",
                                        "regularizer", "kl_loss"),
-                        [reconstruction_loss, -elbo, regularizer, total_layers_losses]))
+                        [reconstruction_loss, -elbo, regularizer, kl_loss]))
     else:
       raise NotImplementedError("Eval mode not supported.")
 
