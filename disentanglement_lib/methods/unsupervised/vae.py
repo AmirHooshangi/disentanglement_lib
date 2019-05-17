@@ -480,7 +480,7 @@ class LayerWiseVAE(BaseVAE):
           "reconstruction_loss": reconstruction_loss,
           "elbo": -elbo
       },
-                                                every_n_iter=9999)
+                                                every_n_iter=1000)
       return tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
           loss=loss,
