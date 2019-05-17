@@ -441,13 +441,10 @@ class BetaTCVAE(BaseVAE):
 class LayerWiseVAE(BaseVAE):
   """layerwise model."""
 
-  def __init__(self, beta=gin.REQUIRED, alpha=gin.REQUIRED, gamma=gin.REQUIRED, lambdA=gin.REQUIRED):
+  def __init__(self, beta=gin.REQUIRED):
     """Creates a layerwise VAE model.
     """
     self.beta = beta
-    self.alpha = alpha
-    self.gamma = gamma
-    self.lambdA = lambdA
 
   def model_fn(self, features, labels, mode, params):
     """TPUEstimator compatible model function."""
@@ -463,8 +460,8 @@ class LayerWiseVAE(BaseVAE):
     per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
     kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
-    regularizer = self.beta * kl_loss
-    loss = tf.add(reconstruction_loss, regularizer, name="loss")
+    #regularizer = self.beta * kl_loss
+    loss = reconstruction_loss
     elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = optimizers.make_vae_optimizer()

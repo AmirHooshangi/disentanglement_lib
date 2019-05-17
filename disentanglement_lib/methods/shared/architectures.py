@@ -369,7 +369,8 @@ def test_decoder(latent_tensor, output_shape, is_training=False):
 #    return layerwise_deep_layer
 
 @gin.configurable("layerwise_conv_encoder", whitelist=[])
-def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
+def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
+                           alpha=gin.REQUIRED,beta=gin.REQUIRED, gamma=gin.REQUIRED, lambdA=gin.REQUIRED):
   """Bayesian Convolutional encoder used in layerwise-VAE.
 
   Architecture based on row 3 of Table 1 on page 13 of "beta-VAE: Learning Basic Visual
@@ -390,23 +391,24 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
   """
   del is_training
 
+
   from tensorflow_probability.python import distributions as tfd
 
   model = tf.keras.Sequential([
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-          kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+          kernel_divergence_fn=lambda q, p, ignore: alpha * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: gamma * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: lambdA * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: beta * tfd.kl_divergence(q, p)),
       tf.keras.layers.Flatten(),
-      (tfp.layers.DenseReparameterization(256)),
+      (tf.layers.Dens(256)),
   ])
 
   output = model(input_tensor)
