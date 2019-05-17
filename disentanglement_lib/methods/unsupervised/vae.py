@@ -460,7 +460,7 @@ class LayerWiseVAE(BaseVAE):
     per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
     kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
-    #regularizer = self.beta * kl_loss
+    regularizer = kl_loss
     loss = reconstruction_loss
     elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
