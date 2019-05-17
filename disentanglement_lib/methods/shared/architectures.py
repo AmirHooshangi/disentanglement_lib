@@ -370,9 +370,9 @@ def test_decoder(latent_tensor, output_shape, is_training=False):
 
 @gin.configurable("layerwise_conv_encoder", whitelist=[])
 def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
-  """Convolutional encoder used in layerwise-VAE paper for the chairs data.
+  """Bayesian Convolutional encoder used in layerwise-VAE.
 
-  Based on row 3 of Table 1 on page 13 of "beta-VAE: Learning Basic Visual
+  Architecture based on row 3 of Table 1 on page 13 of "beta-VAE: Learning Basic Visual
   Concepts with a Constrained Variational Framework"
   (https://openreview.net/forum?id=Sy2fzU9gl)
 
@@ -395,16 +395,16 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True):
   model = tf.keras.Sequential([
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-          kernel_divergence_fn=lambda q, p, ignore: 3 * tfd.kl_divergence(q, p)),
+          kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 3 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 3 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: 3 * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=lambda q, p, ignore: 4 * tfd.kl_divergence(q, p)),
       tf.keras.layers.Flatten(),
       (tfp.layers.DenseReparameterization(256)),
   ])
