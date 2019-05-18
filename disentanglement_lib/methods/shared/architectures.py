@@ -406,7 +406,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       kernel_divergence_fn=lambda q, p, ignore: lambdA * tfd.kl_divergence(q, p)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: beta * tfd.kl_divergence(q, p)),
+      kernel_divergence_fn=None),
       tf.keras.layers.Flatten(),
       tfp.layers.DenseReparameterization(256)])
 
