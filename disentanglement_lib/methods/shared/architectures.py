@@ -398,16 +398,16 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model = tf.keras.Sequential([
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-          kernel_divergence_fn=lambda q, p, ignore: alpha * (tfd.kl_divergence(q, p)/64)),
+          kernel_divergence_fn=lambda q, p, ignore: alpha * (tfd.kl_divergence(q, p)/1)),
       tfp.layers.Convolution2DReparameterization(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: gamma * (tfd.kl_divergence(q, p)/64)),
+      kernel_divergence_fn=lambda q, p, ignore: gamma * (tfd.kl_divergence(q, p)/1)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: lambdA * (tfd.kl_divergence(q, p)/64)),
+      kernel_divergence_fn=lambda q, p, ignore: lambdA * (tfd.kl_divergence(q, p)/1)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: zeta * (tfd.kl_divergence(q, p)/64)),
+      kernel_divergence_fn=lambda q, p, ignore: zeta * (tfd.kl_divergence(q, p)/1)),
       tf.keras.layers.Flatten(),
       tfp.layers.DenseReparameterization(256)])
 
