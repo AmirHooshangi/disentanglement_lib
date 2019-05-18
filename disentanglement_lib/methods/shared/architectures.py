@@ -370,7 +370,8 @@ def test_decoder(latent_tensor, output_shape, is_training=False):
 
 @gin.configurable("layerwise_conv_encoder", whitelist=[])
 def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
-                           alpha=gin.REQUIRED,beta=gin.REQUIRED, gamma=gin.REQUIRED, lambdA=gin.REQUIRED):
+                           alpha=gin.REQUIRED,gamma=gin.REQUIRED,
+                           zeta=gin.REQUIRED, lambdA=gin.REQUIRED):
   """Bayesian Convolutional encoder used in layerwise-VAE.
 
   Architecture based on row 3 of Table 1 on page 13 of "beta-VAE: Learning Basic Visual
@@ -406,7 +407,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       kernel_divergence_fn=lambda q, p, ignore: lambdA * (tfd.kl_divergence(q, p)/64)),
       tfp.layers.Convolution2DReparameterization(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
-      kernel_divergence_fn=lambda q, p, ignore: beta * (tfd.kl_divergence(q, p)/64)),
+      kernel_divergence_fn=lambda q, p, ignore: zeta * (tfd.kl_divergence(q, p)/64)),
       tf.keras.layers.Flatten(),
       tfp.layers.DenseReparameterization(256)])
 
