@@ -408,11 +408,12 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
       kernel_divergence_fn=lambda q, p, ignore: beta * tfd.kl_divergence(q, p)),
       tf.keras.layers.Flatten(),
-      (tfp.layers.DenseReparameterization(256)),
-  ])
+      tfp.layers.DenseFlipout(1024, activation=tf.nn.relu),
+     # tf.keras.layers.Dropout(hold_prob),
+      tfp.layers.DenseFlipout(10)])
 
   output = model(input_tensor)
-  mean = tf.layers.dense(output, num_latent, activation=None, name="means")
-  var = tf.layers.dense(output, num_latent, activation=None, name="var")
+  mean = output
+  var = output
 
   return mean, var
