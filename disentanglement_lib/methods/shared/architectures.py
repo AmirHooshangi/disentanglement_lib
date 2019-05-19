@@ -377,7 +377,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   Architecture based on row 3 of Table 1 on page 13 of "beta-VAE: Learning Basic Visual
   Concepts with a Constrained Variational Framework"
   (https://openreview.net/forum?id=Sy2fzU9gl)
- 
+
   Args:
     input_tensor: Input tensor of shape (batch_size, 64, 64, num_channels) to
       build encoder on.
