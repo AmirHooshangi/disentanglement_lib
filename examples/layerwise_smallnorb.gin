@@ -17,10 +17,11 @@ dataset.name = "smallnorb"
 model.batch_size = 64
 model.model = @layerwise_vae()
 model.random_seed = 0
-layerwise_vae.beta = 0.7
-layerwise_vae.alpha = 5
-layerwise_vae.gamma = 5
-layerwise_vae.lambdA = 5
+layerwise_vae.beta = 2
+layerwise_conv_encoder.alpha = 2
+layerwise_conv_encoder.gamma = 2
+layerwise_conv_encoder.lambdA = 2
+layerwise_conv_encoder.zeta = 2
 encoder.num_latent = 10
 vae_optimizer.optimizer_fn = @AdamOptimizer
 # We train for only 5 steps, in practice we train for 300000 steps.
