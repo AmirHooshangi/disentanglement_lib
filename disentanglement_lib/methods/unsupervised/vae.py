@@ -446,6 +446,10 @@ class LayerWiseVAE(BaseVAE):
     """
     self.beta = beta
 
+  def regularizer(self, kl_loss, z_mean, z_logvar, z_sampled):
+    tc = (self.beta - 1.) * total_correlation(z_sampled, z_mean, z_logvar)
+    return tc + kl_loss
+
   def model_fn(self, features, labels, mode, params):
     """TPUEstimator compatible model function."""
 
@@ -460,7 +464,7 @@ class LayerWiseVAE(BaseVAE):
     per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
     kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
-    regularizer = self.beta * kl_loss
+    regularizer = self.regularizer(kl_loss,z_mean1,z_logvar1,z_sampled)
     loss = tf.add(reconstruction_loss, regularizer, name="loss")
     elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
