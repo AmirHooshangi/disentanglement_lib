@@ -399,12 +399,15 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       tfp.layers.Convolution2DFlipout(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
           kernel_divergence_fn=lambda q, p, ignore: alpha * (tfd.kl_divergence(q, p)/1)),
+      tf.keras.layers.Dropout(0.8),
       tfp.layers.Convolution2DFlipout(
           32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.relu,
       kernel_divergence_fn=lambda q, p, ignore: gamma * (tfd.kl_divergence(q, p)/1)),
+      tf.keras.layers.Dropout(0.8),
       tfp.layers.Convolution2DFlipout(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
       kernel_divergence_fn=lambda q, p, ignore: lambdA * (tfd.kl_divergence(q, p)/1)),
+      tf.keras.layers.Dropout(0.8),
       tfp.layers.Convolution2DFlipout(
           64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.relu,
       kernel_divergence_fn=lambda q, p, ignore: zeta * (tfd.kl_divergence(q, p)/1)),
