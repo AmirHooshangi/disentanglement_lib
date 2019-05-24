@@ -395,24 +395,43 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   from tensorflow_probability.python import distributions as tfd
 
-  model = tf.keras.Sequential([
-      tfp.layers.Convolution2DFlipout(
-          32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.elu,
-          kernel_divergence_fn=lambda q, p, ignore: alpha * (tfd.kl_divergence(q, p) / 1)),
-      tfp.layers.Convolution2DFlipout(
-          32, kernel_size=4, padding='SAME', strides=2, activation=tf.nn.elu,
-      kernel_divergence_fn=lambda q, p, ignore: gamma * (tfd.kl_divergence(q, p)/1)),
-      tfp.layers.Convolution2DFlipout(
-          64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.elu,
-      kernel_divergence_fn=lambda q, p, ignore: lambdA * (tfd.kl_divergence(q, p)/1)),
-      tfp.layers.Convolution2DFlipout(
-          64, kernel_size=2, padding='SAME', strides=2, activation=tf.nn.elu,
-      kernel_divergence_fn=lambda q, p, ignore: zeta * (tfd.kl_divergence(q, p)/1)),
-      tf.keras.layers.Flatten(),
-      tfp.layers.DenseFlipout(256)])
+  model1 = tf.keras.Sequential()
+  model1.add(tf.keras.layers.Conv2D(
+      filters=32,
+      kernel_size=4,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e1",
+  ))
+  model1.add(tf.keras.layers.Flatten())
+  model1.add(tf.keras.layers.Dense(256))
 
-  output = model(input_tensor)
-  mean = tf.layers.dense(output, num_latent, activation=None, name="means")
-  var = tf.layers.dense(output, num_latent, activation=None, name="var")
+  output1 = model1(input_tensor)
+  mean1 = tf.layers.dense(output1, num_latent, activation=None, name="means")
+  var1 = tf.layers.dense(output1, num_latent, activation=None, name="var")
+
+
+
+  model2 = tf.keras.Sequential()
+
+  model2.add(tf.keras.layers.Conv2D(
+      filters=64,
+      kernel_size=2,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e2",
+  ))
+
+  model2.add(tf.keras.layers.Flatten())
+  model2.add(tf.keras.layers.Dense(256))
+
+  output2 = model2(input_tensor)
+  mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means1")
+  var2 = tf.layers.dense(output2, num_latent, activation=None, name="var1")
+
+  mean = tf.add(mean1, mean2)
+  var = tf.add(var1, var2)
 
   return mean, var
