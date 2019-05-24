@@ -416,7 +416,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model2 = tf.keras.Sequential()
 
   model2.add(tf.keras.layers.Conv2D(
-      filters=64,
+      filters=32,
       kernel_size=8,
       strides=2,
       activation=tf.nn.relu,
