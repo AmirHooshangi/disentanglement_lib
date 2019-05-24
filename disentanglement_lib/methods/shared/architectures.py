@@ -405,11 +405,11 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       name="e1",
   ))
   model1.add(tf.keras.layers.Flatten())
-  model1.add(tf.keras.layers.Dense(256))
+  model1.add(tf.keras.layers.Dense(1024))
 
   output1 = model1(input_tensor)
-  mean1 = tf.layers.dense(output1, num_latent, activation=None, name="means")
-  var1 = tf.layers.dense(output1, num_latent, activation=None, name="var")
+  mean1 = tf.layers.dense(output1, num_latent, activation=None, name="means1")
+  var1 = tf.layers.dense(output1, num_latent, activation=None, name="var1")
 
 
 
@@ -428,8 +428,8 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model2.add(tf.keras.layers.Dense(256))
 
   output2 = model2(input_tensor)
-  mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means1")
-  var2 = tf.layers.dense(output2, num_latent, activation=None, name="var1")
+  mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means2")
+  var2 = tf.layers.dense(output2, num_latent, activation=None, name="var2")
 
   mean = tf.add(mean1, mean2)
   var = tf.add(var1, var2)
