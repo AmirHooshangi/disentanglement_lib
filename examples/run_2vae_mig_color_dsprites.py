@@ -60,7 +60,7 @@ overwrite = True
 #if not os.path.exists(base_path):
 #    os.makedirs(base_path)
 
-path_vae = os.path.join(base_path, "vae")
+path_vae = os.path.join(base_path, "2vae")
 
 # The main training protocol of disentanglement_lib is defined in the
 # disentanglement_lib.methods.unsupervised.train module. To configure
