@@ -412,7 +412,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   import tensorflow_probability as tfp
   tfd = tfp.distributions
-  from utils import joint_distribuition as joint
+  from disentanglement_lib.utils import joint_distribuition as joint
 
   model1 = tf.keras.Sequential()
   model1.add(tf.keras.layers.Conv2D(
