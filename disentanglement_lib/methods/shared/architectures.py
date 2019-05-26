@@ -361,31 +361,6 @@ def test_decoder(latent_tensor, output_shape, is_training=False):
   return tf.reshape(output, shape=[-1] + output_shape)
 
 
-
-layerwise_deep_layer = [0]
-
-
-def get_layerwise_deep_layer():
-    return layerwise_deep_layer
-
-def gaussian_log_density(samples, mean, log_var):
-  from math import pi as pi
-  pi = tf.constant(pi)
-  normalization = tf.log(2. * pi)
-  inv_sigma = tf.exp(-log_var)
-  tmp = (samples - mean)
-  return -0.5 * (tmp * tmp * inv_sigma + log_var + normalization)
-
-
-def sample_from_latent_distribution(z_mean, z_logvar):
-    """Samples from the Gaussian distribution defined by z_mean and z_logvar."""
-    return tf.add(
-        z_mean,
-        tf.exp(z_logvar / 2) * tf.random_normal(tf.shape(z_mean), 0, 1),
-        name="sampled_latent_variable")
-
-
-
 @gin.configurable("layerwise_conv_encoder", whitelist=[])
 def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
                            alpha=gin.REQUIRED,gamma=gin.REQUIRED,
@@ -412,7 +387,8 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   import tensorflow_probability as tfp
   tfd = tfp.distributions
-  from disentanglement_lib.utils import joint_distribuition as joint
+
+  split0, split1, split2 = tf.split(input_tensor, num_or_size_splits=3)
 
   model1 = tf.keras.Sequential()
   model1.add(tf.keras.layers.Conv2D(
@@ -426,18 +402,11 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model1.add(tf.keras.layers.Flatten())
   model1.add(tf.keras.layers.Dense(256))
 
-  output1 = model1(input_tensor)
+  output1 = model1(split0)
   mean1 = tf.layers.dense(output1, num_latent, activation=None, name="means1")
   var1 = tf.layers.dense(output1, num_latent, activation=None, name="var1")
 
-  normal1 = tfd.MultivariateNormalDiag(
-      loc=mean1,
-      scale_diag=var1)
-
-
-
   model2 = tf.keras.Sequential()
-
   model2.add(tf.keras.layers.Conv2D(
       filters=32,
       kernel_size=8,
@@ -450,14 +419,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model2.add(tf.keras.layers.Flatten())
   model2.add(tf.keras.layers.Dense(256))
 
-  output2 = model2(input_tensor)
+  output2 = model2(split1)
   mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means2")
   var2 = tf.layers.dense(output2, num_latent, activation=None, name="var2")
-
-  normal2 = tfd.MultivariateNormalDiag(
-      loc=mean2,
-      scale_diag=var2)
-
 
   model3 = tf.keras.Sequential()
   model3.add(tf.keras.layers.Conv2D(
@@ -471,48 +435,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model3.add(tf.keras.layers.Flatten())
   model3.add(tf.keras.layers.Dense(256))
 
-  output3 = model3(input_tensor)
+  output3 = model3(split2)
   mean3 = tf.layers.dense(output3, num_latent, activation=None, name="means3")
   var3 = tf.layers.dense(output3, num_latent, activation=None, name="var3")
-
-  normal3 = tfd.MultivariateNormalDiag(
-      loc=mean3,
-      scale_diag=var3)
-
-  joint_prob_estimator = joint.JointDistributionSequential(
-      [
-          normal1,
-          normal2,
-          normal3,
-      ], validate_args=True)
-
-  z1 = sample_from_latent_distribution(mean1, var1)
-  p_x1 = gaussian_log_density(z1, mean1, var1)
-
-  z2 = sample_from_latent_distribution(mean2, var2)
-  p_x2 = gaussian_log_density(z2, mean2, var2)
-
-  z3 = sample_from_latent_distribution(mean3, var3)
-  p_x3 = gaussian_log_density(z3, mean3, var3)
-
-  px_multiply = tf.multiply(p_x1, p_x2)
-  px_multiply = tf.multiply(px_multiply, p_x3)
-
-  z1_variable = tf.Variable(z1)
-  z2_variable = tf.Variable(z2)
-  z3_variable = tf.Variable(z3)
-
-  elems = [[z1_variable, z2_variable, z3_variable]]
-
-  print(px_multiply.shape)
-#  print(joint_prob_estimator.log_prob(joint_prob_estimator.sample(seed=0)).shape)
-  #independence_loss = tf.reduce_mean(tf.math.subtract(joint_prob_estimator.sample(seed=0),
-  #                                                    px_multiply))
-  log_prob = tf.map_fn(lambda x: joint_prob_estimator.log_prob, elems)
-  independence_loss = tf.losses.mean_squared_error(log_prob, px_multiply)
-  layerwise_deep_layer[0] = independence_loss
- # output2.add_loss(tf.reduce_mean(d.log_prob(xs) - px_multiply))
- # output3.add_loss(tf.reduce_mean(d.log_prob(xs) - px_multiply))
 
   mean = tf.add(mean1, mean2)
   mean = tf.add(mean, mean3)

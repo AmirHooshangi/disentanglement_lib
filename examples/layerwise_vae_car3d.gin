@@ -14,7 +14,7 @@
 # limitations under the License.
 
 dataset.name = "cars3d"
-model.batch_size = 64
+model.batch_size = 63
 model.model = @layerwise_vae()
 model.random_seed = 0
 layerwise_vae.beta = 1

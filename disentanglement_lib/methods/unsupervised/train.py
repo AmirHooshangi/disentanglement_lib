@@ -110,8 +110,8 @@ def train(model_dir,
       use_tpu=False,
       model_fn=model.model_fn,
       model_dir=os.path.join(model_dir, "tf_checkpoint"),
-      train_batch_size=batch_size,
-      eval_batch_size=batch_size,
+      train_batch_size=batch_size/3,
+      eval_batch_size=batch_size/3,
       config=run_config)
 
   # Set up time to keep track of elapsed time in results.

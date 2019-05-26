@@ -38,12 +38,14 @@ class BaseVAE(gaussian_encoder_model.GaussianEncoderModel):
   def model_fn(self, features, labels, mode, params):
     """TPUEstimator compatible model function."""
     del labels
+    split0, split1, split2 = tf.split(features, num_or_size_splits=3)
+
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
-    data_shape = features.get_shape().as_list()[1:]
-    z_mean, z_logvar = self.gaussian_encoder(features, is_training=is_training)
+    data_shape = split0.get_shape().as_list()[1:]
+    z_mean, z_logvar = self.gaussian_encoder(split0, is_training=is_training)
     z_sampled = self.sample_from_latent_distribution(z_mean, z_logvar)
     reconstructions = self.decode(z_sampled, data_shape, is_training)
-    per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
+    per_sample_loss = losses.make_reconstruction_loss(split0, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
     kl_loss = compute_gaussian_kl(z_mean, z_logvar)
     regularizer = self.regularizer(kl_loss, z_mean, z_logvar, z_sampled)
@@ -437,9 +439,6 @@ class BetaTCVAE(BaseVAE):
     tc = (self.beta - 1.) * total_correlation(z_sampled, z_mean, z_logvar)
     return tc + kl_loss
 
-independence_loss = architectures.get_layerwise_deep_layer()[0]
-
-
 @gin.configurable("layerwise_vae")
 class LayerWiseVAE(BaseVAE):
   """layerwise model."""
@@ -464,9 +463,7 @@ class LayerWiseVAE(BaseVAE):
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
     kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
     regularizer = self.beta * kl_loss
-    #TODO ?
-    loss = tf.add(reconstruction_loss, independence_loss, "independencec_loss")
-    loss = tf.add(loss, regularizer, name="loss")
+    loss = tf.add(reconstruction_loss, regularizer, name="loss")
     elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = optimizers.make_vae_optimizer()
