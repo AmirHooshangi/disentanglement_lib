@@ -498,8 +498,18 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   px_multiply = tf.multiply(p_x1, p_x2)
   px_multiply = tf.multiply(px_multiply, p_x3)
 
-  independence_loss = tf.reduce_mean(tf.math.subtract(joint_prob_estimator.sample(seed=0),
-                                                      px_multiply))
+  z1_variable = tf.Variable(z1)
+  z2_variable = tf.Variable(z2)
+  z3_variable = tf.Variable(z3)
+
+  elems = [[z1_variable, z2_variable, z3_variable]]
+
+  print(px_multiply.shape)
+#  print(joint_prob_estimator.log_prob(joint_prob_estimator.sample(seed=0)).shape)
+  #independence_loss = tf.reduce_mean(tf.math.subtract(joint_prob_estimator.sample(seed=0),
+  #                                                    px_multiply))
+  log_prob = tf.map_fn(lambda x: joint_prob_estimator.log_prob, elems)
+  independence_loss = tf.losses.mean_squared_error(log_prob, px_multiply)
   layerwise_deep_layer[0] = independence_loss
  # output2.add_loss(tf.reduce_mean(d.log_prob(xs) - px_multiply))
  # output3.add_loss(tf.reduce_mean(d.log_prob(xs) - px_multiply))
