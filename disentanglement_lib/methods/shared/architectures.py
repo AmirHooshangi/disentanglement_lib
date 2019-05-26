@@ -479,14 +479,12 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       loc=mean3,
       scale_diag=var3)
 
-  d = joint.JointDistributionSequential(
+  joint_prob_estimator = joint.JointDistributionSequential(
       [
           normal1,
           normal2,
           normal3,
       ], validate_args=True)
-
-
 
   z1 = sample_from_latent_distribution(mean1, var1)
   p_x1 = gaussian_log_density(z1, mean1, var1)
@@ -500,8 +498,8 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   px_multiply = tf.multiply(p_x1, p_x2)
   px_multiply = tf.multiply(px_multiply, p_x3)
 
-
-  independence_loss = tf.reduce_mean(tf.math.subtract(d.sample(seed=0), px_multiply))
+  independence_loss = tf.reduce_mean(tf.math.subtract(joint_prob_estimator.sample(seed=0),
+                                                      px_multiply))
   layerwise_deep_layer[0] = independence_loss
  # output2.add_loss(tf.reduce_mean(d.log_prob(xs) - px_multiply))
  # output3.add_loss(tf.reduce_mean(d.log_prob(xs) - px_multiply))
