@@ -432,7 +432,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   normal1 = tfd.MultivariateNormalDiag(
       loc=mean1,
-      scale_diag=var1, name="test")
+      scale_diag=var1)
 
   model2 = tf.keras.Sequential()
   model2.add(tf.keras.layers.Conv2D(
@@ -453,7 +453,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   normal2 = tfd.MultivariateNormalDiag(
       loc=mean2,
-      scale_diag=var2, name="test2")
+      scale_diag=var2)
 
 
   model3 = tf.keras.Sequential()
@@ -493,7 +493,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   px_multiply = tf.multiply(pz1, pz2)
   px_multiply = tf.multiply(px_multiply, pz3)
 
-  independence_loss = tf.reduce_mean(tf.math.subtract(joint_log_prob, px_multiply))
+  independence_loss = alpha * tf.reduce_mean(tf.math.subtract(joint_log_prob, px_multiply))
   layerwise_deep_layer[0] = independence_loss
 
   mean = tf.add(mean1, mean2)
