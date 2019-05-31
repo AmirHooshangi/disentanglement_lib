@@ -476,25 +476,26 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       loc=mean3,
       scale_diag=var3)
 
-  joint_prob_estimator = joint.JointDistributionSequential([normal1, normal2, normal3])
-
   z1 = sample_from_latent_distribution(mean1, var1)
   z2 = sample_from_latent_distribution(mean2, var2)
   z3 = sample_from_latent_distribution(mean3, var3)
 
   xs = (z1, z2, z3)
-  ds, _ = joint_prob_estimator.sample_distributions()
-  joint_log_prob = sum(d_.log_prob(x) for d_, x in zip(ds, xs))
+  ds = [normal1, normal2, normal3]
+  joint_log_prob = sum(tf.exp((d_.log_prob(x))) for d_, x in zip(ds, xs))
 
-  pz1 = normal1.log_prob(z1)
-  pz2 = normal2.log_prob(z2)
-  pz3 = normal3.log_prob(z3)
+  pz1 = tf.exp(normal1.log_prob(z1))
+  pz2 = tf.exp(normal2.log_prob(z2))
+  pz3 = tf.exp(normal3.log_prob(z3))
 
   px_multiply = tf.multiply(pz1, pz2)
   px_multiply = tf.multiply(px_multiply, pz3)
 
-  independence_loss = alpha * tf.reduce_mean(tf.math.subtract(joint_log_prob, px_multiply))
+  independence_loss = alpha * tf.reduce_mean(tf.squared_difference(joint_log_prob, px_multiply))
   layerwise_deep_layer[0] = independence_loss
+  #layerwise_deep_layer[0] = independence_loss
+
+  print("Helloo", independence_loss)
 
   mean = tf.add(mean1, mean2)
   mean = tf.add(mean, mean3)
