@@ -467,8 +467,8 @@ class LayerWiseVAE(BaseVAE):
     print("chand bar miam inja?!")
     print(independence_loss)
     #TODO ?
-    loss = tf.add(reconstruction_loss, independence_loss, "independencec_loss")
-    loss = tf.add(loss, regularizer, name="loss")
+    betaloss = tf.add(reconstruction_loss, regularizer, name="loss")
+    loss = tf.add(betaloss, independence_loss, "independencec_loss")
     elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = optimizers.make_vae_optimizer()
