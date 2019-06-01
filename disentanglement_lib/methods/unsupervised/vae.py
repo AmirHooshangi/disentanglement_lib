@@ -449,6 +449,10 @@ class LayerWiseVAE(BaseVAE):
     """
     self.beta = beta
 
+  def regularizer(self, independence_loss, kl_loss, beta):
+      return (beta * kl_loss) + independence_loss
+
+
   def model_fn(self, features, labels, mode, params):
     """TPUEstimator compatible model function."""
 
@@ -463,12 +467,11 @@ class LayerWiseVAE(BaseVAE):
     per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
     kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
-    regularizer = self.beta * kl_loss
+    regularizer = self.regularizer(independence_loss, kl_loss, self.beta)
     print("chand bar miam inja?!")
     print(independence_loss)
     #TODO ?
-    betaloss = tf.add(reconstruction_loss, regularizer, name="loss")
-    loss = tf.add(betaloss, independence_loss, "independencec_loss")
+    loss = tf.add(reconstruction_loss, regularizer, name="loss")
     elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = optimizers.make_vae_optimizer()
