@@ -499,7 +499,7 @@ class LayerWiseVAE(BaseVAE):
           loss=loss,
           eval_metrics=(make_metric_fn("reconstruction_loss", "elbo",
                                        "regularizer", "kl_loss"),
-                        [reconstruction_loss, -elbo, independence_loss, kl_loss]))
+                        [reconstruction_loss, -elbo, regularizer, kl_loss]))
     else:
       raise NotImplementedError("Eval mode not supported.")
 
