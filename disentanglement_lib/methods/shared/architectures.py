@@ -496,9 +496,12 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   print("Helloo", independence_loss)
 
-  mean = tf.add(mean1, mean2)
-  mean = tf.add(mean, mean3)
-  var = tf.add(var1, var2)
-  var = tf.add(var, var3)
+  mean = mean1 + mean2 + mean3
 
-  return mean, var
+#  var = tf.add(var1, var2)
+#  var = tf.add(var, var3)
+  # log(var) = log(e ^ log(var_1) + e ^ log(var_2))
+
+  sigma_summation = tf.math.exp(var1) + tf.math.exp(var2) + tf.math.exp(var3)
+
+  return mean, sigma_summation
