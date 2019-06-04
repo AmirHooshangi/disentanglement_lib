@@ -437,7 +437,7 @@ class BetaTCVAE(BaseVAE):
     tc = (self.beta - 1.) * total_correlation(z_sampled, z_mean, z_logvar)
     return tc + kl_loss
 
-independence_loss = architectures.get_layerwise_deep_layer()
+independence_loss = architectures.get_independence_loss_dic()
 
 
 @gin.configurable("layerwise_vae")
@@ -467,7 +467,7 @@ class LayerWiseVAE(BaseVAE):
     per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
     kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
-    regularizer = self.regularizer(independence_loss, kl_loss, self.beta)
+    regularizer = self.regularizer(independence_loss['a'], kl_loss, self.beta)
     print("chand bar miam inja?!")
     print(independence_loss)
     #TODO ?

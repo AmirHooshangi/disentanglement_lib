@@ -362,11 +362,11 @@ def test_decoder(latent_tensor, output_shape, is_training=False):
 
 
 
-layerwise_deep_layer = [0]
+independence_loss_dic = {'a': None}
 
 
-def get_layerwise_deep_layer():
-    return layerwise_deep_layer
+def get_independence_loss_dic():
+    return independence_loss_dic
 
 def gaussian_log_density(samples, mean, log_var):
   from math import pi as pi
@@ -489,11 +489,10 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   log_pz = pz1 + pz2 #+ pz3
 
-  independence_loss = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
-  layerwise_deep_layer[0] = independence_loss
+  independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
   #layerwise_deep_layer[0] = independence_loss
 
-  print("Helloo", independence_loss)
+  print("Helloo", independence_loss_dic)
 
   mean = mean1 + mean2 #+ mean3
 
