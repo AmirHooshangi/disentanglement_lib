@@ -412,7 +412,6 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   import tensorflow_probability as tfp
   tfd = tfp.distributions
-  from disentanglement_lib.utils import joint_distribuition as joint
 
   model1 = tf.keras.Sequential()
   model1.add(tf.keras.layers.Conv2D(
@@ -456,39 +455,39 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       scale_diag=var2)
 
 
-  model3 = tf.keras.Sequential()
-  model3.add(tf.keras.layers.Conv2D(
-      filters=32,
-      kernel_size=4,
-      strides=2,
-      activation=tf.nn.relu,
-      padding="same",
-      name="e3",
-  ))
-  model3.add(tf.keras.layers.Flatten())
-  model3.add(tf.keras.layers.Dense(256))
-
-  output3 = model3(input_tensor)
-  mean3 = tf.layers.dense(output3, num_latent, activation=None, name="means3")
-  var3 = tf.layers.dense(output3, num_latent, activation=None, name="var3")
-
-  normal3 = tfd.MultivariateNormalDiag(
-      loc=mean3,
-      scale_diag=var3)
+  # model3 = tf.keras.Sequential()
+  # model3.add(tf.keras.layers.Conv2D(
+  #     filters=32,
+  #     kernel_size=4,
+  #     strides=2,
+  #     activation=tf.nn.relu,
+  #     padding="same",
+  #     name="e3",
+  # ))
+  # model3.add(tf.keras.layers.Flatten())
+  # model3.add(tf.keras.layers.Dense(256))
+  #
+  # output3 = model3(input_tensor)
+  # mean3 = tf.layers.dense(output3, num_latent, activation=None, name="means3")
+  # var3 = tf.layers.dense(output3, num_latent, activation=None, name="var3")
+  #
+  # normal3 = tfd.MultivariateNormalDiag(
+  #     loc=mean3,
+  #     scale_diag=var3)
 
   z1 = sample_from_latent_distribution(mean1, var1)
   z2 = sample_from_latent_distribution(mean2, var2)
-  z3 = sample_from_latent_distribution(mean3, var3)
+#  z3 = sample_from_latent_distribution(mean3, var3)
 
-  xs = (z1, z2, z3)
-  ds = [normal1, normal2, normal3]
+  xs = (z1, z2)
+  ds = [normal1, normal2]
   joint_log_prob = sum((d_.log_prob(x)) for d_, x in zip(ds, xs))
 
   pz1 = normal1.log_prob(z1)
   pz2 = normal2.log_prob(z2)
-  pz3 = normal3.log_prob(z3)
+  #pz3 = normal3.log_prob(z3)
 
-  log_pz = pz1 + pz2 + pz3
+  log_pz = pz1 + pz2
 
   independence_loss = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
   layerwise_deep_layer[0] = independence_loss
@@ -496,7 +495,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   print("Helloo", independence_loss)
 
-  mean = mean1 + mean2 + mean3
+  mean = mean1 + mean2
 
 #  var = tf.add(var1, var2)
 #  var = tf.add(var, var3)
