@@ -415,15 +415,15 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   model1 = tf.keras.Sequential()
   model1.add(tf.keras.layers.Conv2D(
-      filters=32,
-      kernel_size=4,
+      filters=16,
+      kernel_size=6,
       strides=2,
       activation=tf.nn.relu,
       padding="same",
       name="e1",
   ))
   model1.add(tf.keras.layers.Flatten())
-  model1.add(tf.keras.layers.Dense(256))
+  model1.add(tf.keras.layers.Dense(128))
 
   output1 = model1(input_tensor)
   mean1 = tf.layers.dense(output1, num_latent, activation=None, name="means1")
@@ -435,8 +435,8 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   model2 = tf.keras.Sequential()
   model2.add(tf.keras.layers.Conv2D(
-      filters=32,
-      kernel_size=2,
+      filters=16,
+      kernel_size=8,
       strides=2,
       activation=tf.nn.relu,
       padding="same",
@@ -444,7 +444,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   ))
 
   model2.add(tf.keras.layers.Flatten())
-  model2.add(tf.keras.layers.Dense(256))
+  model2.add(tf.keras.layers.Dense(128))
 
   output2 = model2(input_tensor)
   mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means2")
