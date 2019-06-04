@@ -416,7 +416,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model1 = tf.keras.Sequential()
   model1.add(tf.keras.layers.Conv2D(
       filters=32,
-      kernel_size=2,
+      kernel_size=6,
       strides=2,
       activation=tf.nn.relu,
       padding="same",
@@ -436,7 +436,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   model2 = tf.keras.Sequential()
   model2.add(tf.keras.layers.Conv2D(
       filters=32,
-      kernel_size=2,
+      kernel_size=8,
       strides=2,
       activation=tf.nn.relu,
       padding="same",
@@ -489,7 +489,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   log_pz = pz1 + pz2 #+ pz3
 
-  independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
+  independence_loss_dic['a'] = joint_log_prob 
   #layerwise_deep_layer[0] = independence_loss
 
   print("Helloo", independence_loss_dic)
