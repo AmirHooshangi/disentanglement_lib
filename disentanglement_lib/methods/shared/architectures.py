@@ -501,6 +501,6 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 #  var = tf.add(var, var3)
   # log(var) = log(e ^ log(var_1) + e ^ log(var_2))
 
-  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2) + + tf.math.exp(var3))
+  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2) + tf.math.exp(var3))
 
   return mean, sigma_summation
