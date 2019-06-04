@@ -112,7 +112,7 @@ gin_bindings = [
     "evaluation.evaluation_fn = @mig",
     "dataset.name='auto'",
     "evaluation.random_seed = 0",
-    "mig.num_train=1000",
+    "mig.num_train=10000",
     "discretizer.discretizer_fn = @histogram_discretizer",
     "discretizer.num_bins = 20"
 ]
