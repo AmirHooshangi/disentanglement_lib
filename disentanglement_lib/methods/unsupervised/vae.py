@@ -466,13 +466,13 @@ class LayerWiseVAE(BaseVAE):
     reconstructions = self.decode(z_sampled, data_shape, is_training)
     per_sample_loss = losses.make_reconstruction_loss(features, reconstructions)
     reconstruction_loss = tf.reduce_mean(per_sample_loss)
-    kl_loss = independence_loss['a']
-    #regularizer = self.regularizer(independence_loss['a'], kl_loss, self.beta)
-    regularizer = independence_loss['a']
+    kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
+    regularizer = self.regularizer(independence_loss['a'], kl_loss, self.beta)
+    #regularizer = independence_loss['a']
     print("chand bar miam inja?!")
     print(independence_loss)
     #TODO ?
-    loss = tf.add(reconstruction_loss, kl_loss, name="loss")
+    loss = tf.add(reconstruction_loss, regularizer, name="loss")
     elbo = tf.add(reconstruction_loss, kl_loss, name="elbo")
     if mode == tf.estimator.ModeKeys.TRAIN:
       optimizer = optimizers.make_vae_optimizer()
