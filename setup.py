@@ -58,6 +58,7 @@ setup(
         'tensorflow_hub>=0.2',
         'tensorflow==1.14.0rc0',
         'tensorflow_probability==0.7.0rc0',
+        'tensorflow-gpu==1.14.0rc0'
     ],
     extras_require={
         'tf': ['tensorflow>=1.7'],
