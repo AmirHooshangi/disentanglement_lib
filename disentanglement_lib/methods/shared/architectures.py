@@ -429,7 +429,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       padding="same",
       name="e1",
   ))
-  model1.append(tf.keras.layers.Dropout(0.5))
+  model1.add(tf.keras.layers.Dropout(0.5))
   model1.add(tf.keras.layers.Flatten())
   model1.add(tf.keras.layers.Dense(256))
 
@@ -450,7 +450,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       padding="same",
       name="e2",
   ))
-  model2.append(tf.keras.layers.Dropout(0.5))
+  model2.add(tf.keras.layers.Dropout(0.5))
   model2.add(tf.keras.layers.Flatten())
   model2.add(tf.keras.layers.Dense(256))
 
@@ -472,7 +472,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       padding="same",
       name="e3",
   ))
-  model3.append(tf.keras.layers.Dropout(0.5))
+  model3.add(tf.keras.layers.Dropout(0.5))
   model3.add(tf.keras.layers.Flatten())
   model3.add(tf.keras.layers.Dense(256))
 
