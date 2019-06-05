@@ -501,7 +501,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   kl_loss1 = compute_gaussian_kl(mean1, var1)
   kl_loss2 = compute_gaussian_kl(mean2, var2)
 
-  independence_loss_dic['a'] = kl_loss1 + kl_loss2
+  independence_loss_dic['a'] = 2 * (kl_loss1 + kl_loss2) 
   #independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
   #layerwise_deep_layer[0] = independence_loss
 
