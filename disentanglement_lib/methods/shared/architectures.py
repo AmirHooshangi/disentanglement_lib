@@ -422,14 +422,14 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   model1 = tf.keras.Sequential()
   model1.add(tf.keras.layers.Conv2D(
-      filters=32,
+      filters=8,
       kernel_size=6,
       strides=3,
       activation=tf.nn.relu,
       padding="same",
       name="e1",
   ))
-  model1.add(tf.keras.layers.Dropout(0.5))
+  model1.add(tf.keras.layers.GaussianDropout(0.5))
   model1.add(tf.keras.layers.Flatten())
   model1.add(tf.keras.layers.Dense(256))
 
@@ -443,14 +443,14 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   model2 = tf.keras.Sequential()
   model2.add(tf.keras.layers.Conv2D(
-      filters=32,
+      filters=8,
       kernel_size=8,
       strides=4,
       activation=tf.nn.relu,
       padding="same",
       name="e2",
   ))
-  model2.add(tf.keras.layers.Dropout(0.5))
+  model2.add(tf.keras.layers.GaussianDropout(0.5))
   model2.add(tf.keras.layers.Flatten())
   model2.add(tf.keras.layers.Dense(256))
 
@@ -462,33 +462,76 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       loc=mean2,
       scale_diag=var2)
 
-  #
-  # model3 = tf.keras.Sequential()
-  # model3.add(tf.keras.layers.Conv2D(
-  #     filters=16,
-  #     kernel_size=4,
-  #     strides=2,
-  #     activation=tf.nn.relu,
-  #     padding="same",
-  #     name="e3",
-  # ))
-  # model3.add(tf.keras.layers.Dropout(0.5))
-  # model3.add(tf.keras.layers.Flatten())
-  # model3.add(tf.keras.layers.Dense(256))
-  #
-  # output3 = model3(input_tensor)
-  # mean3 = tf.layers.dense(output3, num_latent, activation=None, name="means3")
-  # var3 = tf.layers.dense(output3, num_latent, activation=None, name="var3")
+  model3 = tf.keras.Sequential()
+  model3.add(tf.keras.layers.Conv2D(
+      filters=8,
+      kernel_size=4,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e3",
+  ))
+  model3.add(tf.keras.layers.GaussianDropout(0.5))
+  model3.add(tf.keras.layers.Flatten())
+  model3.add(tf.keras.layers.Dense(256))
 
-  #normal3 = tfd.MultivariateNormalDiag(
-  #    loc=mean3,
-  #    scale_diag=var3)
+  output3 = model3(input_tensor)
+  mean3 = tf.layers.dense(output3, num_latent, activation=None, name="means3")
+  var3 = tf.layers.dense(output3, num_latent, activation=None, name="var3")
+
+  normal3 = tfd.MultivariateNormalDiag(
+     loc=mean3,
+     scale_diag=var3)
+
+  model4 = tf.keras.Sequential()
+  model4.add(tf.keras.layers.Conv2D(
+      filters=8,
+      kernel_size=4,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e4",
+  ))
+  model4.add(tf.keras.layers.GaussianDropout(0.5))
+  model4.add(tf.keras.layers.Flatten())
+  model4.add(tf.keras.layers.Dense(256))
+
+  output4 = model4(input_tensor)
+  mean4 = tf.layers.dense(output4, num_latent, activation=None, name="means4")
+  var4 = tf.layers.dense(output4, num_latent, activation=None, name="var4")
+
+  normal4 = tfd.MultivariateNormalDiag(
+      loc=mean4,
+      scale_diag=var4)
+
+  model5 = tf.keras.Sequential()
+  model5.add(tf.keras.layers.Conv2D(
+      filters=8,
+      kernel_size=3,
+      strides=2,
+      activation=tf.nn.relu,
+      padding="same",
+      name="e5",
+  ))
+  model5.add(tf.keras.layers.GaussianDropout(0.5))
+  model5.add(tf.keras.layers.Flatten())
+  model5.add(tf.keras.layers.Dense(256))
+
+  output5 = model5(input_tensor)
+  mean5 = tf.layers.dense(output5, num_latent, activation=None, name="means5")
+  var5 = tf.layers.dense(output5, num_latent, activation=None, name="var5")
+
+  normal5 = tfd.MultivariateNormalDiag(
+      loc=mean5,
+      scale_diag=var5)
 
   z1 = sample_from_latent_distribution(mean1, var1)
   z2 = sample_from_latent_distribution(mean2, var2)
-  #z3 = sample_from_latent_distribution(mean3, var3)
+  z3 = sample_from_latent_distribution(mean3, var3)
+  z4 = sample_from_latent_distribution(mean4, var4)
+  z5 = sample_from_latent_distribution(mean5, var5)
 
-  ds = [normal1, normal2]
+  ds = [normal1, normal2, normal3, normal4, normal5]
   d = tfd.JointDistributionSequential(ds)
   d._resolve_graph()
   xs = d.sample(500)
@@ -496,27 +539,22 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   pz1 = normal1.log_prob(z1)
   pz2 = normal2.log_prob(z2)
-  #pz3 = normal3.log_prob(z3)
+  pz3 = normal3.log_prob(z3)
+  pz4 = normal3.log_prob(z4)
+  pz5 = normal3.log_prob(z5)
 
-  log_pz = pz1 + pz2 #+ pz3
-
-  #kl_loss1 = compute_gaussian_kl(mean1, var1)
-  #kl_loss2 = compute_gaussian_kl(mean2, var2)
+  log_pz = pz1 + pz2 + pz3 + pz4 + pz5
 
   independence_loss = tf.reduce_mean(joint_log_prob - log_pz)
 
   independence_loss_dic['a'] = independence_loss
-  #independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
-  #layerwise_deep_layer[0] = independence_loss
 
-  print("Helloo", independence_loss_dic)
-
-  mean = mean1 + mean2# + mean3
+  mean = mean1 + mean2 + mean3 + mean4 + mean5
 
 #  var = tf.add(var1, var2)
 #  var = tf.add(var, var3)
   # log(var) = log(e ^ log(var_1) + e ^ log(var_2))
 
-  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2))
+  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2) + tf.math.exp(var3)+ tf.math.exp(var4) + tf.math.exp(var5))
 
   return mean, sigma_summation
