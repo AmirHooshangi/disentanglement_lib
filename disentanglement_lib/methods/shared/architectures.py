@@ -479,9 +479,11 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   z2 = sample_from_latent_distribution(mean2, var2)
   #z3 = sample_from_latent_distribution(mean3, var3)
 
-  xs = (z1, z2)
   ds = [normal1, normal2]
-  joint_log_prob = sum((d_.log_prob(x)) for d_, x in zip(ds, xs))
+  d = tfd.JointDistributionSequential(ds)
+  d._resolve_graph()
+  xs = d.sample(64)
+  joint_log_prob = d.log_prob(xs)
 
   pz1 = normal1.log_prob(z1)
   pz2 = normal2.log_prob(z2)
@@ -489,7 +491,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   log_pz = pz1 + pz2 #+ pz3
 
-  independence_loss_dic['a'] = joint_log_prob 
+  independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
   #layerwise_deep_layer[0] = independence_loss
 
   print("Helloo", independence_loss_dic)

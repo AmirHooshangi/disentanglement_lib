@@ -56,7 +56,8 @@ setup(
         'pandas>=0.23.0',
         'scipy>=1.0.0',
         'tensorflow_hub>=0.2',
-        'tensorflow_probability',
+        'tensorflow==1.14.0rc0',
+        'tensorflow_probability==0.7.0rc0',
     ],
     extras_require={
         'tf': ['tensorflow>=1.7'],
