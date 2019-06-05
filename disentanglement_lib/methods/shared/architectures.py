@@ -462,33 +462,33 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
       loc=mean2,
       scale_diag=var2)
 
+  #
+  # model3 = tf.keras.Sequential()
+  # model3.add(tf.keras.layers.Conv2D(
+  #     filters=16,
+  #     kernel_size=4,
+  #     strides=2,
+  #     activation=tf.nn.relu,
+  #     padding="same",
+  #     name="e3",
+  # ))
+  # model3.add(tf.keras.layers.Dropout(0.5))
+  # model3.add(tf.keras.layers.Flatten())
+  # model3.add(tf.keras.layers.Dense(256))
+  #
+  # output3 = model3(input_tensor)
+  # mean3 = tf.layers.dense(output3, num_latent, activation=None, name="means3")
+  # var3 = tf.layers.dense(output3, num_latent, activation=None, name="var3")
 
-  model3 = tf.keras.Sequential()
-  model3.add(tf.keras.layers.Conv2D(
-      filters=16,
-      kernel_size=4,
-      strides=2,
-      activation=tf.nn.relu,
-      padding="same",
-      name="e3",
-  ))
-  model3.add(tf.keras.layers.Dropout(0.5))
-  model3.add(tf.keras.layers.Flatten())
-  model3.add(tf.keras.layers.Dense(256))
-
-  output3 = model3(input_tensor)
-  mean3 = tf.layers.dense(output3, num_latent, activation=None, name="means3")
-  var3 = tf.layers.dense(output3, num_latent, activation=None, name="var3")
-
-  normal3 = tfd.MultivariateNormalDiag(
-      loc=mean3,
-      scale_diag=var3)
+  #normal3 = tfd.MultivariateNormalDiag(
+  #    loc=mean3,
+  #    scale_diag=var3)
 
   z1 = sample_from_latent_distribution(mean1, var1)
   z2 = sample_from_latent_distribution(mean2, var2)
-  z3 = sample_from_latent_distribution(mean3, var3)
+  #z3 = sample_from_latent_distribution(mean3, var3)
 
-  ds = [normal1, normal2, normal3]
+  ds = [normal1, normal2]
   d = tfd.JointDistributionSequential(ds)
   d._resolve_graph()
   xs = d.sample(500)
@@ -496,9 +496,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   pz1 = normal1.log_prob(z1)
   pz2 = normal2.log_prob(z2)
-  pz3 = normal3.log_prob(z3)
+  #pz3 = normal3.log_prob(z3)
 
-  log_pz = pz1 + pz2 + pz3
+  log_pz = pz1 + pz2 #+ pz3
 
   #kl_loss1 = compute_gaussian_kl(mean1, var1)
   #kl_loss2 = compute_gaussian_kl(mean2, var2)
@@ -511,12 +511,12 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   print("Helloo", independence_loss_dic)
 
-  mean = mean1 + mean2 + mean3
+  mean = mean1 + mean2# + mean3
 
 #  var = tf.add(var1, var2)
 #  var = tf.add(var, var3)
   # log(var) = log(e ^ log(var_1) + e ^ log(var_2))
 
-  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2) + tf.math.exp(var3))
+  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2))
 
   return mean, sigma_summation
