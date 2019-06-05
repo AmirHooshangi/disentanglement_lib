@@ -482,7 +482,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   ds = [normal1, normal2]
   d = tfd.JointDistributionSequential(ds)
   d._resolve_graph()
-  xs = d.sample(64)
+  xs = d.sample(100000)
   joint_log_prob = d.log_prob(xs)
 
   pz1 = normal1.log_prob(z1)
