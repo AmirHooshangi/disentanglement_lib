@@ -469,6 +469,7 @@ class LayerWiseVAE(BaseVAE):
     kl_loss = compute_gaussian_kl(z_mean1, z_logvar1)
     #regularizer = self.regularizer(independence_loss['a'], kl_loss, self.beta)
     #regularizer = independence_loss['a']
+    regularizer = kl_loss
     print("chand bar miam inja?!")
     print(independence_loss)
     #TODO ?
