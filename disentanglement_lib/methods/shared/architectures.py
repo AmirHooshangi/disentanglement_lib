@@ -491,7 +491,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   log_pz = pz1 + pz2 #+ pz3
 
-  independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
+  independence_loss_dic['a'] = tf.reduce_mean(joint_log_prob)
   #layerwise_deep_layer[0] = independence_loss
 
   print("Helloo", independence_loss_dic)
