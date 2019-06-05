@@ -489,7 +489,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   ds = [normal1, normal2]
   d = tfd.JointDistributionSequential(ds)
   d._resolve_graph()
-  xs = d.sample(1000)
+  xs = d.sample(500)
   joint_log_prob = d.log_prob(xs)
 
   pz1 = normal1.log_prob(z1)
@@ -501,7 +501,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   kl_loss1 = compute_gaussian_kl(mean1, var1)
   kl_loss2 = compute_gaussian_kl(mean2, var2)
 
-  independence_loss_dic['a'] = 2 * kl_loss1 + 2*kl_loss2
+  independence_loss = tf.reduce_mean(joint_log_prob - log_pz)
+
+  independence_loss_dic['a'] = kl_loss1 + kl_loss2 + independence_loss
   #independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
   #layerwise_deep_layer[0] = independence_loss
 
