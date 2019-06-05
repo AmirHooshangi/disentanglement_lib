@@ -385,6 +385,13 @@ def sample_from_latent_distribution(z_mean, z_logvar):
         name="sampled_latent_variable")
 
 
+def compute_gaussian_kl(z_mean, z_logvar):
+  """Compute KL divergence between input Gaussian and Standard Normal."""
+  return tf.reduce_mean(
+      0.5 * tf.reduce_sum(
+          tf.square(z_mean) + tf.exp(z_logvar) - z_logvar - 1, [1]),
+      name="kl_loss")
+
 
 @gin.configurable("layerwise_conv_encoder", whitelist=[])
 def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
@@ -491,7 +498,11 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   log_pz = pz1 + pz2 #+ pz3
 
-  independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
+  kl_loss1 = compute_gaussian_kl(mean1, var1)
+  kl_loss2 = compute_gaussian_kl(mean2, var2)
+
+  independence_loss_dic['a'] = kl_loss1 + kl_loss2
+  #independence_loss_dic['a'] = tf.reduce_mean((alpha * (joint_log_prob - log_pz)))
   #layerwise_deep_layer[0] = independence_loss
 
   print("Helloo", independence_loss_dic)
