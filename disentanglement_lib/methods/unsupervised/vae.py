@@ -460,7 +460,6 @@ class LayerWiseVAE(BaseVAE):
     del labels
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
     data_shape = features.get_shape().as_list()[1:]
-
     z_mean1, z_logvar1 = self.gaussian_encoder(features, is_training=is_training)
     z_sampled = self.sample_from_latent_distribution(z_mean1, z_logvar1)
     reconstructions = self.decode(z_sampled, data_shape, is_training)
@@ -497,7 +496,7 @@ class LayerWiseVAE(BaseVAE):
           loss=loss,
           eval_metrics=(make_metric_fn("reconstruction_loss", "elbo",
                                        "regularizer", "kl_loss"),
-                        [reconstruction_loss, -elbo, regularizer, kl_loss]))
+                        [reconstruction_loss, -elbo, independence_loss['a'], kl_loss]))
     else:
       raise NotImplementedError("Eval mode not supported.")
 

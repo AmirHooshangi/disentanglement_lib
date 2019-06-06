@@ -422,9 +422,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   model1 = tf.keras.Sequential()
   model1.add(tf.keras.layers.Conv2D(
-      filters=8,
+      filters=32,
       kernel_size=6,
-      strides=3,
+      strides=2,
       activation=tf.nn.relu,
       padding="same",
       name="e1",
@@ -443,9 +443,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   model2 = tf.keras.Sequential()
   model2.add(tf.keras.layers.Conv2D(
-      filters=8,
+      filters=32,
       kernel_size=8,
-      strides=4,
+      strides=2,
       activation=tf.nn.relu,
       padding="same",
       name="e2",
@@ -531,23 +531,20 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 #  z4 = sample_from_latent_distribution(mean4, var4)
 #  z5 = sample_from_latent_distribution(mean5, var5)
 
-  ds = [normal1, normal2]
-  d = tfd.JointDistributionSequential(ds)
-  d._resolve_graph()
-  xs = d.sample(500)
-  joint_log_prob = d.log_prob(xs)
+  #ds = [normal1, normal2]
+  #d = tfd.JointDistributionSequential(ds)
+  #d._resolve_graph()
+  #xs = d.sample(500)
+  #joint_log_prob = d.log_prob(xs)
 
-  pz1 = normal1.log_prob(z1)
-  pz2 = normal2.log_prob(z2)
+  #pz1 = normal1.log_prob(z1)
+  #pz2 = normal2.log_prob(z2)
   #pz3 = normal3.log_prob(z3)
   #pz4 = normal3.log_prob(z4)
   #pz5 = normal3.log_prob(z5)
 
-  log_pz = pz1 + pz2 #+ pz3 + pz4 + pz5
-
-  independence_loss = tf.reduce_mean(joint_log_prob - log_pz)
-
-  independence_loss_dic['a'] = independence_loss
+  #log_pz = pz1 + pz2 #+ pz3 + pz4 + pz5
+  #independence_loss = tf.reduce_mean(joint_log_prob - log_pz)
 
   mean = mean1 + mean2 #+ mean3 + mean4 + mean5
 
@@ -558,6 +555,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   #sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2))
 
   correlation = tfp.stats.correlation(z1, z2, sample_axis=0, event_axis=None)
+  independence_loss_dic['a'] = tf.reduce_mean(correlation)
   print(correlation.shape)
   sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2) + ((2*correlation) * (1/2*(tf.math.exp(var1) + 1/2*tf.math.exp(var2)))))
   return mean, sigma_summation
