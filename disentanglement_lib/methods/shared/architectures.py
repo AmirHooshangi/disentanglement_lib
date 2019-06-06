@@ -437,9 +437,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   mean1 = tf.layers.dense(output1, num_latent, activation=None, name="means1")
   var1 = tf.layers.dense(output1, num_latent, activation=None, name="var1")
 
-  normal1 = tfd.MultivariateNormalDiag(
-      loc=mean1,
-      scale_diag=var1)
+#  normal1 = tfd.MultivariateNormalDiag(
+#      loc=mean1,
+#      scale_diag=var1)
 
   model2 = tf.keras.Sequential()
   model2.add(tf.keras.layers.Conv2D(
@@ -458,9 +458,9 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means2")
   var2 = tf.layers.dense(output2, num_latent, activation=None, name="var2")
 
-  normal2 = tfd.MultivariateNormalDiag(
-      loc=mean2,
-      scale_diag=var2)
+#  normal2 = tfd.MultivariateNormalDiag(
+#      loc=mean2,
+#      scale_diag=var2)
 
   # model3 = tf.keras.Sequential()
   # model3.add(tf.keras.layers.Conv2D(
@@ -556,6 +556,5 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   correlation = tfp.stats.correlation(z1, z2, sample_axis=0, event_axis=None)
   independence_loss_dic['a'] = tf.reduce_mean(correlation)
-  print(correlation.shape)
-  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2) + ((2*correlation) * (1/2*(tf.math.exp(var1) + 1/2*tf.math.exp(var2)))))
+  sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2) + ((2*correlation) * tf.math.sqrt((tf.math.exp(var1) + tf.math.exp(var2)))))
   return mean, sigma_summation
