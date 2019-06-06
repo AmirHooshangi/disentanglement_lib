@@ -556,5 +556,5 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 
   #correlation = tfp.stats.correlation(z1, z2, sample_axis=0, event_axis=None)
   independence_loss_dic['a'] = None #tf.reduce_mean(correlation)
-  sigma_summation = tf.log(tf.math.exp(var1) ) #+ ((2*correlation) * (1/2*(tf.math.log(var1) + 1/2*tf.math.log(var2)))))
+  sigma_summation = var1  #+ ((2*correlation) * (1/2*(tf.math.log(var1) + 1/2*tf.math.log(var2)))))
   return mean, sigma_summation
