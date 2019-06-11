@@ -450,7 +450,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
        padding="same",
        name="e2",
    ))
-   #model2.add(tf.keras.layers.GaussianDropout(0.5))
+  model2.add(tf.keras.layers.GaussianDropout(0.5))
   model2.add(tf.keras.layers.Flatten())
   model2.add(tf.keras.layers.Dense(256))
  #
