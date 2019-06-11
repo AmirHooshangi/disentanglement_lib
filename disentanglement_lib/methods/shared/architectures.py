@@ -441,22 +441,22 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
 #      loc=mean1,
 #      scale_diag=var1)
 
- #  model2 = tf.keras.Sequential()
- #  model2.add(tf.keras.layers.Conv2D(
- #      filters=32,
- #      kernel_size=8,
- #      strides=2,
- #      activation=tf.nn.relu,
- #      padding="same",
- #      name="e2",
- #  ))
- # # model2.add(tf.keras.layers.GaussianDropout(0.5))
- #  model2.add(tf.keras.layers.Flatten())
- #  model2.add(tf.keras.layers.Dense(256))
+  model2 = tf.keras.Sequential()
+  model2.add(tf.keras.layers.Conv2D(
+       filters=32,
+       kernel_size=8,
+       strides=2,
+       activation=tf.nn.relu,
+       padding="same",
+       name="e2",
+   ))
+   #model2.add(tf.keras.layers.GaussianDropout(0.5))
+  model2.add(tf.keras.layers.Flatten())
+  model2.add(tf.keras.layers.Dense(256))
  #
- #  output2 = model2(input_tensor)
- #  mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means2")
- #  var2 = tf.layers.dense(output2, num_latent, activation=None, name="var2")
+  output2 = model2(input_tensor)
+  mean2 = tf.layers.dense(output2, num_latent, activation=None, name="means2")
+  var2 = tf.layers.dense(output2, num_latent, activation=None, name="var2")
 
 #  normal2 = tfd.MultivariateNormalDiag(
 #      loc=mean2,
@@ -526,7 +526,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   #     scale_diag=var5)
 
   z1 = sample_from_latent_distribution(mean1, var1)
-  #z2 = sample_from_latent_distribution(mean2, var2)
+  z2 = sample_from_latent_distribution(mean2, var2)
 #  z3 = sample_from_latent_distribution(mean3, var3)
 #  z4 = sample_from_latent_distribution(mean4, var4)
 #  z5 = sample_from_latent_distribution(mean5, var5)
@@ -546,7 +546,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   #log_pz = pz1 + pz2 #+ pz3 + pz4 + pz5
   #independence_loss = tf.reduce_mean(joint_log_prob - log_pz)
 
-  mean = mean1 #+ mean2 #+ mean3 + mean4 + mean5
+  mean = mean1 + mean2 #+ mean3 + mean4 + mean5
 
 #  var = tf.add(var1, var2)
 #  var = tf.add(var, var3)
@@ -554,7 +554,7 @@ def layerwise_conv_encoder(input_tensor, num_latent, is_training=True,
   # log(var) = log(e ^ log(var_1) + e ^ log(var_2))
   #sigma_summation = tf.log(tf.math.exp(var1) + tf.math.exp(var2))
 
-  #correlation = tfp.stats.correlation(z1, z2, sample_axis=0, event_axis=None)
-  independence_loss_dic['a'] = None #tf.reduce_mean(correlation)
-  sigma_summation = var1  #+ ((2*correlation) * (1/2*(tf.math.log(var1) + 1/2*tf.math.log(var2)))))
+  correlation = tfp.stats.correlation(z1, z2, sample_axis=0, event_axis=None)
+  independence_loss_dic['a'] = tf.reduce_mean(correlation)
+  sigma_summation = tf.log(tf.exp(var1) + tf.exp(var2) + 2 * correlation * tf.exp(1/2 * (tf.log(var1) + tf.log(var2))))
   return mean, sigma_summation
